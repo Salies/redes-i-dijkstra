@@ -35,17 +35,21 @@ class vertex:
     pi: str # predecessor no menor caminho
     d: int # distância da fonte até o vértice
 
+# Inicializa os caminhos mínimos a partir da origem s.
+# Atribui valores de forma que o algoritmo de Dijkstra funcione.
 def initialize_single_source(G, s) -> None:
     for v in G.values():
         v.d = inf
         v.pi = None
     s.d = 0
 
+# Faz o relaxamento da aresta u->v, de peso w.
 def relax(u, uid, v, w) -> None:
     if v.d > u.d + w:
         v.d = u.d + w
         v.pi = uid
 
+# Extrai do grafo-fila Q o vértice com menor distância até a fonte.
 def extract_min(Q) -> str:
     min_k = next(iter(Q))
     min_d = Q[min_k].d
@@ -56,6 +60,7 @@ def extract_min(Q) -> str:
     del Q[min_k]
     return min_k
 
+# Algoritmo de Dijkstra, baseado nos métodos anteriormente apresentados.
 def dijkstra(G, s) -> None:
     initialize_single_source(G, s)
     Q = deepcopy(G)
@@ -67,6 +72,8 @@ def dijkstra(G, s) -> None:
 # Principal
 G = {}
 
+# Pede ao usuário o nome do arquivo, lê o arquivo de acordo com a estrutura estabelecida
+# (leia README.md para mais informações) e insere os dados na representação de grafo.
 filename = input("Nome do arquivo (absoluto ou relativo): ")
 with open(filename) as file:
     while (line := file.readline().rstrip()):
@@ -75,10 +82,14 @@ with open(filename) as file:
             G[u] = vertex([], None, None)
         G[u].adj.append((v, int(w)))
 
+# A partir de um vértice fonte...
 s = input('Escolha um vértice fonte: ')
 
+# ...o algoritmo de Dijkstra é executado
 dijkstra(G, G[s])
 
+# Imprimindo os caminhos mínoimos do vértice fonte até todos os outros vértices do grafo,
+# se esses caminhos exisitirem.
 print(f"\nCaminhos mínimos de {s} até todos os outros vértices do grafo:")
 for k, v in G.items():
     path = f"{k} " # guarda o caminho aqui
