@@ -13,6 +13,7 @@
     Esta implementação foi baseada no meu trabalho final da disciplina de Estruturas de Dados II
     (https://github.com/Salies/edii-tpfinal).
 """
+
 from dataclasses import dataclass
 from math import inf
 from copy import deepcopy
@@ -27,24 +28,25 @@ from copy import deepcopy
 # o vértice fonte. Contudo, como o único objetivo deste programa é a implementação
 # do algoritmo de Dijkstra, optou-se por essa representação interna.
 
+# Funções e estruturas
 @dataclass
 class vertex:
     adj: list # adjacências
     pi: str # predecessor no menor caminho
     d: int # distância da fonte até o vértice
 
-def initialize_single_source(G, s):
+def initialize_single_source(G, s) -> None:
     for v in G.values():
         v.d = inf
         v.pi = None
     s.d = 0
 
-def relax(u, uid, v, w):
+def relax(u, uid, v, w) -> None:
     if v.d > u.d + w:
         v.d = u.d + w
         v.pi = uid
 
-def extract_min(Q):
+def extract_min(Q) -> str:
     min_k = next(iter(Q))
     min_d = Q[min_k].d
     for k, v in Q.items():
@@ -54,7 +56,7 @@ def extract_min(Q):
     del Q[min_k]
     return min_k
 
-def dijkstra(G, s):
+def dijkstra(G, s) -> None:
     initialize_single_source(G, s)
     Q = deepcopy(G)
     while Q:
@@ -62,19 +64,27 @@ def dijkstra(G, s):
         for (v, w) in G[u].adj:
             relax(G[u], u, G[v], w)
 
-# Grafo apresentado no slide da aula
-G = {
-    'A': vertex([('B', 2), ('C', 5), ('D', 1)], None, None),
-    'B': vertex([('A', 2), ('C', 3), ('D', 2)], None, None),
-    'C': vertex([('A', 5), ('B', 3), ('D', 3), ('E', 1), ('F', 5)], None, None),
-    'D': vertex([('A', 1), ('B', 2), ('C', 3), ('E', 1)], None, None),
-    'E': vertex([('C', 1), ('D', 1), ('F', 2)], None, None),
-    'F': vertex([('C', 5), ('E', 2)], None, None)
-}
+# Principal
+G = {}
 
-s = 'A'
+filename = input("Nome do arquivo (absoluto ou relativo): ")
+with open(filename) as file:
+    while (line := file.readline().rstrip()):
+        u, v, w = line.split(' ')
+        if u not in G:
+            G[u] = vertex([], None, None)
+        G[u].adj.append((v, int(w)))
+
+s = input('Escolha um vértice fonte: ')
+
 dijkstra(G, G[s])
 
-print(f"Caminhos mínimos de {s} até todos os outros vértices do grafo:")
+print(f"\nCaminhos mínimos de {s} até todos os outros vértices do grafo:")
 for k, v in G.items():
-    print(k, v.adj, v.d, v.pi)
+    path = f"{k} " # guarda o caminho aqui
+    og_d = v.d
+    while(v.pi != None):
+        path = f"{v.pi} -> " + path
+        v = G[v.pi]
+    path = f"{k}: " + path + f"(peso {('inf' if og_d == inf else og_d)})"
+    print(path)
